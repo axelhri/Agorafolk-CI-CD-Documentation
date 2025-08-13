@@ -1,5 +1,7 @@
 # CD Pipeline script
 
+**[CD-Script](/Agorafolk-CI-CD-Documentation/.github/workflows/cd.yml)**
+
 Ce pipeline ne se déclenche que si la CI a réussi.
 
 ## Déclencheur

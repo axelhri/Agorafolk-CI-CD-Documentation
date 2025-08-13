@@ -1,5 +1,10 @@
 # Configuration Traefik
 
+**[Traefik.yml](/Agorafolk-CI-CD-Documentation/docker/traefik/traefik.yml)**
+**[openssl.cnf](/Agorafolk-CI-CD-Documentation/docker/traefik/traefik.yml)**
+**[cert](/Agorafolk-CI-CD-Documentation/docker/traefik/certs/agorafolk.crt)**
+**[key](/Agorafolk-CI-CD-Documentation/docker/traefik/certs/agorafolk.key)**
+
 ## traefik.yml
 
 Ce fichier est la configuration statique de Traefik (chargée au démarrage).

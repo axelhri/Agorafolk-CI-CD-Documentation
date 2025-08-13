@@ -1,5 +1,7 @@
 # Nginx
 
+**[default.conf](/Agorafolk-CI-CD-Documentation/docker/nginx/conf.d/default.conf)**
+
 ## Bloc `server`
 
 ```nginx
