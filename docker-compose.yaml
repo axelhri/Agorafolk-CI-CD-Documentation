@@ -1,0 +1,97 @@
+services:
+  php:
+    build:
+      context: .
+      dockerfile: ./.docker/Dockerfile
+    container_name: symfony_php
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+    depends_on:
+      - database
+    environment:
+      APP_ENV: dev
+
+  nginx:
+    image: nginx:stable-alpine
+    container_name: symfony_nginx
+    ports:
+      - "8002:80"
+    volumes:
+      - .:/var/www
+      - ./.docker/nginx/conf.d:/etc/nginx/conf.d:ro
+    labels:
+      - "traefik.enable=true"
+
+      - "traefik.http.routers.api.rule=Host(`api.agorafolk.local`)"
+      - "traefik.http.routers.api.entrypoints=websecure"
+      - "traefik.http.routers.api.tls=true"
+      - "traefik.http.routers.api.service=nginx"
+
+      - "traefik.http.routers.web.rule=Host(`web.agorafolk.local`)"
+      - "traefik.http.routers.web.entrypoints=websecure"
+      - "traefik.http.routers.web.tls=true"
+      - "traefik.http.routers.web.service=nginx"
+
+      - "traefik.http.services.nginx.loadbalancer.server.port=80"
+
+  traefik:
+    image: traefik:v2.11
+    container_name: traefik
+    restart: always
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./.docker/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./.docker/traefik/certs:/certs:ro
+    networks:
+      - default
+
+  ###> doctrine/doctrine-bundle ###
+  database:
+    image: postgres:${POSTGRES_VERSION:-16}-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-app}
+      # You should definitely change the password in production
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
+      POSTGRES_USER: ${POSTGRES_USER:-app}
+    volumes:
+      - database_data:/var/lib/postgresql/data:rw
+      # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
+      # - ./docker/db/data:/var/lib/postgresql/data:rw
+  ###< doctrine/doctrine-bundle ###
+
+  node:
+    image: node:20-alpine
+    container_name: nodejs
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+    tty: true
+
+  adminer:
+    image: michalhosna/adminer:latest
+    container_name: adminer
+    restart: always
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      ADMINER_DRIVER: pgsql
+      ADMINER_SERVER: database
+      ADMINER_DB: ${POSTGRES_DB:-app}
+      ADMINER_USERNAME: ${POSTGRES_USER:-app}
+      ADMINER_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
+      ADMINER_AUTOLOGIN: 1
+      ADMINER_NAME: Agorafolk-local
+volumes:
+  database_data:
+
+networks:
+  default:
