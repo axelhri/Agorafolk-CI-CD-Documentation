@@ -7,7 +7,7 @@
   - [docker-compose](/docker-compose.md)
   - [Dockerfile](/Dockerfile_.md)
   - [Nginx](/Nginx.md)
-  - [Traefik](/docker/traefik/)
+  - [Traefik](/Traefik.md)
 
 - **[CI Script](/CI-Script.md)**
 - **[CD Script](/CD-Script.md)**
