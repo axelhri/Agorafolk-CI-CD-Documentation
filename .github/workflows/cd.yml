@@ -2,24 +2,28 @@ name: CD Pipeline
 
 on:
   workflow_run:
-    workflows: ["ci"]
+    workflows: ["CI Pipeline"]
     types:
       - completed
 
 jobs:
-  build:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'develop' }}
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Docker login
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-
-      - name: Build the Docker image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/agorafolk-back .
-
-      - name: Push the image
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/agorafolk-back
+      - name: Déploiement via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /var/www/agorafolk 
+            git pull origin develop
+            docker compose pull
+            docker compose build --no-cache
+            docker compose up -d --remove-orphans
