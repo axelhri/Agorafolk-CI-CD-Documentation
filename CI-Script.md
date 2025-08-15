@@ -1,6 +1,6 @@
 # CI Pipeline script
 
-**[CI-Script](/Agorafolk-CI-CD-Documentation/.github/workflows/ci.yml)**
+**[CI-Script](/.github/workflows/ci.yml)**
 
 ## Structure générale
 
